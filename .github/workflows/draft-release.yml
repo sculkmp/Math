@@ -1,13 +1,10 @@
-name: Sculk Server
+name:  Draft release
 
-on: [ push, pull_request ]
+on:
+  push:
+    tags: "*"
 
 jobs:
-  draft:
-    name: Create GitHub draft release
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
   build:
     runs-on: ubuntu-latest
 
@@ -63,4 +60,5 @@ jobs:
           prerelease: false
           name: Math ${{ steps.extract-pom-xml.outputs.VERSION }}
           tag: ${{ steps.extract-pom-xml.outputs.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: Math version ${{ steps.extract-pom-xml.outputs.VERSION }}
