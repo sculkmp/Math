@@ -1,0 +1,62 @@
+name: Sculk Server
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM with Java 21
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract data from pom.xml
+        id: extract-pom-xml
+        run: |
+          VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Maven
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release_artifacts
+          path: |
+            ${{ github.workspace }}/target/Math-${{ steps.extract-pom-xml.outputs.VERSION }}.jar
+      - name: Create draft release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: ${{ github.workspace }}/target/Math-${{ steps.extract-pom-xml.outputs.VERSION }}.jar
+          commit: ${{ github.sha }}
+          draft: true
+          prerelease: false
+          name: Math ${{ steps.extract-pom-xml.outputs.VERSION }}
+          tag: ${{ steps.extract-pom-xml.outputs.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: Math version ${{ steps.extract-pom-xml.outputs.VERSION }}
