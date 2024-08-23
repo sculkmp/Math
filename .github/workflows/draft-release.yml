@@ -3,6 +3,11 @@ name: Sculk Server
 on: [ push, pull_request ]
 
 jobs:
+  draft:
+    name: Create GitHub draft release
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
   build:
     runs-on: ubuntu-latest
 
