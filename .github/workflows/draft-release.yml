@@ -1,6 +1,9 @@
-name: Sculk Server
+name:  Draft release
 
-on: [ push, pull_request ]
+on:
+  workflow_dispatch:
+  push:
+    tags: "*"
 
 jobs:
   build:
