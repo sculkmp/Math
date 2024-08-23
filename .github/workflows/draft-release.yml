@@ -58,5 +58,4 @@ jobs:
           prerelease: false
           name: Math ${{ steps.extract-pom-xml.outputs.VERSION }}
           tag: ${{ steps.extract-pom-xml.outputs.VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           body: Math version ${{ steps.extract-pom-xml.outputs.VERSION }}
